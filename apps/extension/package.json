@@ -11,7 +11,7 @@
     "zip": "wxt zip && wxt zip -b firefox && wxt zip -b edge",
     "package:safari": "guarded-build --name extension:safari-app --requires macos -- xcrun safari-web-extension-converter .output/safari-mv2 --project-location .output/safari-xcode --bundle-identifier sh.suaveplan.turbo.safari --no-open --force",
     "check": "wxt prepare && tsc --noEmit",
-    "test": "bun test",
+    "test": "bun test entrypoints",
     "e2e": "wxt build && playwright test",
     "lint": "biome check entrypoints e2e",
     "format": "biome format --write entrypoints e2e"

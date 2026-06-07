@@ -95,17 +95,10 @@ export interface CapabilityReport {
 }
 
 export function capabilityReport(): CapabilityReport {
-  const reqs: Requirement[] = [
-    "any",
-    "linux",
-    "macos",
-    "windows",
-    "wine",
-    "xcode",
-    "android-sdk",
-  ];
-  const capabilities = Object.fromEntries(
-    reqs.map((r) => [r, checkRequirement(r).ok]),
-  ) as Record<Requirement, boolean>;
+  const reqs: Requirement[] = ["any", "linux", "macos", "windows", "wine", "xcode", "android-sdk"];
+  const capabilities = Object.fromEntries(reqs.map((r) => [r, checkRequirement(r).ok])) as Record<
+    Requirement,
+    boolean
+  >;
   return { host: `${hostOS()}/${process.arch}`, capabilities };
 }
