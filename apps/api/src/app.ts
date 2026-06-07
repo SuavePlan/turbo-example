@@ -39,7 +39,7 @@ export function createApp(opts: AppOptions = {}) {
   type Forwarded<T> =
     | { ok: true; data: T }
     | { ok: false; reason: "unreachable" }
-    | { ok: false; reason: "status"; status: number };
+    | { ok: false; reason: "status"; status: number; detail?: string };
 
   async function callPython<T>(
     path: string,
@@ -55,7 +55,17 @@ export function createApp(opts: AppOptions = {}) {
         headers,
         body: JSON.stringify(body),
       });
-      if (!res.ok) return { ok: false, reason: "status", status: res.status };
+      if (!res.ok) {
+        // Surface the Python service's own (already-localised) error detail.
+        let detail: string | undefined;
+        try {
+          const payload = (await res.json()) as { detail?: unknown };
+          if (typeof payload.detail === "string") detail = payload.detail;
+        } catch {
+          // Non-JSON upstream body; fall back to a localised status message.
+        }
+        return { ok: false, reason: "status", status: res.status, detail };
+      }
       return { ok: true, data: (await res.json()) as T };
     } catch {
       return { ok: false, reason: "unreachable" };
@@ -107,7 +117,7 @@ export function createApp(opts: AppOptions = {}) {
       if (!result.ok) {
         const error =
           result.reason === "status"
-            ? t("server.upstreamStatus", { status: result.status })
+            ? (result.detail ?? t("server.upstreamStatus", { status: result.status }))
             : t("server.upstreamUnreachable", { url: pythonApiUrl });
         return c.json({ error }, 502);
       }
@@ -145,7 +155,7 @@ export function createApp(opts: AppOptions = {}) {
       if (!result.ok) {
         const error =
           result.reason === "status"
-            ? t("server.upstreamStatus", { status: result.status })
+            ? (result.detail ?? t("server.upstreamStatus", { status: result.status }))
             : t("server.upstreamUnreachable", { url: pythonApiUrl });
         return c.json({ error }, 502);
       }

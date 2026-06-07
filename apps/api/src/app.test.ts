@@ -78,6 +78,32 @@ describe("@repo/api", () => {
     expect((await zh.json()).error).toContain("无法连接");
   });
 
+  test("forwards the python service's localised error detail", async () => {
+    const stub: typeof fetch = (async () =>
+      Response.json({ detail: "无法解析该 PDF。" }, { status: 422 })) as unknown as typeof fetch;
+    const app = createApp({ pythonApiUrl: "http://python", fetch: stub });
+    const res = await app.request("/pdf/info", {
+      method: "POST",
+      headers: { "content-type": "application/json", "accept-language": "zh-CN" },
+      body: JSON.stringify({ data: "abc" }),
+    });
+    expect(res.status).toBe(502);
+    expect((await res.json()).error).toBe("无法解析该 PDF。");
+  });
+
+  test("falls back to a localised status message when upstream gives no JSON detail", async () => {
+    const stub: typeof fetch = (async () =>
+      new Response("oops", { status: 500 })) as unknown as typeof fetch;
+    const app = createApp({ pythonApiUrl: "http://python", fetch: stub });
+    const res = await app.request("/pdf/info", {
+      method: "POST",
+      headers: { "content-type": "application/json", "accept-language": "zh-CN" },
+      body: JSON.stringify({ data: "abc" }),
+    });
+    expect(res.status).toBe(502);
+    expect((await res.json()).error).toContain("500");
+  });
+
   test("forwards Accept-Language to the python service", async () => {
     let forwarded = "";
     const stub: typeof fetch = (async (_url: string, init: RequestInit) => {
