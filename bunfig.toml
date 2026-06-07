@@ -1,0 +1,7 @@
+[install]
+# Use exact workspace resolution and a consistent registry across the monorepo.
+exact = false
+peer = true
+
+[install.cache]
+disable = false
