@@ -1,0 +1,11 @@
+{
+  "name": "@repo/py-image",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "build": "uv build --wheel",
+    "test": "uv run --extra dev pytest -q",
+    "lint": "uv run --extra dev ruff check .",
+    "format": "uv run --extra dev ruff format ."
+  }
+}

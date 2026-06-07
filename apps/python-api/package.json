@@ -1,0 +1,13 @@
+{
+  "name": "@repo/python-api",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "build": "uv sync --extra dev",
+    "dev": "uv run --extra dev uvicorn python_api:app --app-dir src --reload --host 0.0.0.0 --port 8000",
+    "start": "uv run uvicorn python_api:app --app-dir src --host 0.0.0.0 --port 8000",
+    "test": "uv run --extra dev pytest -q",
+    "lint": "uv run --extra dev ruff check .",
+    "format": "uv run --extra dev ruff format ."
+  }
+}

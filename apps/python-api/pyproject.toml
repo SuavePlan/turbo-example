@@ -1,0 +1,28 @@
+[project]
+name = "python-api"
+version = "0.0.0"
+description = "FastAPI sidecar exposing the Python PDF + image libraries"
+requires-python = ">=3.11"
+dependencies = [
+    "fastapi>=0.115.0",
+    "uvicorn>=0.32.0",
+    "py-pdf",
+    "py-image",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8.3.0", "ruff>=0.8.0", "httpx>=0.27.0"]
+
+[tool.uv]
+package = false
+
+[tool.uv.sources]
+py-pdf = { path = "../../packages/py-pdf", editable = true }
+py-image = { path = "../../packages/py-image", editable = true }
+
+[tool.ruff]
+line-length = 100
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
