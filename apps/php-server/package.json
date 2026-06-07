@@ -1,0 +1,13 @@
+{
+  "name": "@repo/php-server",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "build": "composer install --no-interaction --no-progress",
+    "dev": "php -S 0.0.0.0:8080 -t public",
+    "start": "php -S 0.0.0.0:8080 -t public",
+    "test": "composer install --no-interaction --no-progress -q && vendor/bin/phpunit",
+    "lint": "composer install --no-interaction --no-progress -q && vendor/bin/pint --test",
+    "format": "vendor/bin/pint"
+  }
+}
