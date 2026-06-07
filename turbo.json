@@ -1,6 +1,7 @@
 {
   "$schema": "https://turbo.build/schema.json",
   "globalDependencies": ["tsconfig.base.json", "biome.json", "bunfig.toml"],
+  "globalPassThroughEnv": ["PLAYWRIGHT_BROWSERS_PATH", "CI"],
   "ui": "stream",
   "tasks": {
     "build": {
