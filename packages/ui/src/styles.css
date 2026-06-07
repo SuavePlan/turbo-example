@@ -1,9 +1,8 @@
-@import "tailwindcss";
-
 /*
  * Shared design tokens for every frontend (web, desktop, extension).
  * Tailwind v4 derives `bg-primary`, `text-muted-foreground`, etc. from the
- * `--color-*` entries in @theme.
+ * `--color-*` entries in @theme. Consuming apps import Tailwind themselves and
+ * then `@import "@repo/ui/styles.css"` so the import happens exactly once.
  */
 @theme {
   --color-background: hsl(0 0% 100%);
