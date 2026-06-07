@@ -8,7 +8,9 @@ export function App() {
     <main className="bg-background p-4">
       <div className="mb-4 text-center">
         <h1 className="text-lg font-bold">{APP_NAME}</h1>
-        <p className="text-xs text-muted-foreground">Browser extension (Chrome + Firefox)</p>
+        <p className="text-xs text-muted-foreground">
+          Browser extension (Chrome · Edge · Firefox · Safari)
+        </p>
       </div>
       <DocumentToolkit apiBaseUrl={API_BASE_URL} surface="extension" />
     </main>

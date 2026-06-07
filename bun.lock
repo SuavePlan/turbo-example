@@ -84,6 +84,7 @@
         "react-dom": "^19.0.0",
       },
       "devDependencies": {
+        "@repo/platform": "workspace:*",
         "@repo/tsconfig": "workspace:*",
         "@tailwindcss/vite": "^4.0.0",
         "@types/bun": "latest",
