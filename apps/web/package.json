@@ -10,8 +10,9 @@
     "start": "bun run server.ts",
     "check": "tsc -p tsconfig.json --noEmit",
     "test": "bun test",
-    "lint": "biome check src",
-    "format": "biome format --write src"
+    "e2e": "vite build && playwright test",
+    "lint": "biome check src e2e",
+    "format": "biome format --write src e2e"
   },
   "dependencies": {
     "@repo/api-contract": "workspace:*",
@@ -23,6 +24,7 @@
     "react-dom": "^19.0.0"
   },
   "devDependencies": {
+    "@playwright/test": "^1.49.0",
     "@repo/tsconfig": "workspace:*",
     "@tailwindcss/vite": "^4.0.0",
     "@types/bun": "latest",

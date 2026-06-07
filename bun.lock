@@ -87,6 +87,7 @@
         "react-dom": "^19.0.0",
       },
       "devDependencies": {
+        "@playwright/test": "^1.49.0",
         "@repo/platform": "workspace:*",
         "@repo/tsconfig": "workspace:*",
         "@tailwindcss/vite": "^4.0.0",
@@ -140,6 +141,7 @@
         "react-dom": "^19.0.0",
       },
       "devDependencies": {
+        "@playwright/test": "^1.49.0",
         "@repo/tsconfig": "workspace:*",
         "@tailwindcss/vite": "^4.0.0",
         "@types/bun": "latest",

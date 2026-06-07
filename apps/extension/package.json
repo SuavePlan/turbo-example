@@ -12,8 +12,9 @@
     "package:safari": "guarded-build --name extension:safari-app --requires macos -- xcrun safari-web-extension-converter .output/safari-mv2 --project-location .output/safari-xcode --bundle-identifier sh.suaveplan.turbo.safari --no-open --force",
     "check": "wxt prepare && tsc --noEmit",
     "test": "bun test",
-    "lint": "biome check entrypoints",
-    "format": "biome format --write entrypoints"
+    "e2e": "wxt build && playwright test",
+    "lint": "biome check entrypoints e2e",
+    "format": "biome format --write entrypoints e2e"
   },
   "dependencies": {
     "@repo/client": "workspace:*",
@@ -24,6 +25,7 @@
     "react-dom": "^19.0.0"
   },
   "devDependencies": {
+    "@playwright/test": "^1.49.0",
     "@repo/platform": "workspace:*",
     "@repo/tsconfig": "workspace:*",
     "@tailwindcss/vite": "^4.0.0",
