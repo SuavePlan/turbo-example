@@ -31,6 +31,10 @@ vendor/
 .phpunit.result.cache
 .phpunit.cache/
 
+# WXT (browser extension)
+.wxt/
+web-ext.config.ts.timestamp*
+
 # Expo / React Native
 .expo/
 .expo-shared/
