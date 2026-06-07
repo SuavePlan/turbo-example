@@ -1,6 +1,7 @@
 import type { PdfInfoResponse, ResizeResponse } from "@repo/api-contract";
 import { createClient } from "@repo/client";
-import { FileText, ImageIcon, Loader2 } from "lucide-react";
+import { createTranslator, defaultLocale, type Locale, localeNames, locales } from "@repo/i18n";
+import { FileText, ImageIcon, Languages, Loader2 } from "lucide-react";
 import { useMemo, useState } from "react";
 import { Button } from "./button.tsx";
 import { Card, CardContent, CardHeader, CardTitle } from "./card.tsx";
@@ -10,6 +11,8 @@ export interface DocumentToolkitProps {
   apiBaseUrl?: string;
   /** Optional label so each host (web/desktop/extension) can identify itself. */
   surface?: string;
+  /** Initial language; the in-component switcher can change it. */
+  defaultLocale?: Locale;
 }
 
 async function readBytes(file: File): Promise<Uint8Array> {
@@ -17,15 +20,20 @@ async function readBytes(file: File): Promise<Uint8Array> {
 }
 
 /**
- * DocumentToolkit — the shared workflow at the heart of the showcase.
- *
- * Upload a PDF (parsed by the Python `pypdf` service via the API) or an image
- * (resized by the Python `Pillow` service via the API). The very same component
- * is rendered by the web app, both desktop apps, and the browser extension, so
- * every surface exercises the same cross-language pipeline.
+ * DocumentToolkit — the shared, multilingual workflow at the heart of the
+ * showcase. Upload a PDF (parsed by the Python `pypdf` service via the API) or
+ * an image (resized by the Python `Pillow` service). The same component renders
+ * on the web app, both desktop apps, and the browser extension, and every
+ * string comes from the shared @repo/i18n catalog (en-GB / zh-CN).
  */
-export function DocumentToolkit({ apiBaseUrl, surface = "web" }: DocumentToolkitProps) {
+export function DocumentToolkit({
+  apiBaseUrl,
+  surface = "web",
+  defaultLocale: initialLocale = defaultLocale,
+}: DocumentToolkitProps) {
   const client = useMemo(() => createClient({ baseUrl: apiBaseUrl }), [apiBaseUrl]);
+  const [locale, setLocale] = useState<Locale>(initialLocale);
+  const t = useMemo(() => createTranslator(locale), [locale]);
   const [busy, setBusy] = useState<"pdf" | "image" | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [pdf, setPdf] = useState<PdfInfoResponse | null>(null);
@@ -59,15 +67,39 @@ export function DocumentToolkit({ apiBaseUrl, surface = "web" }: DocumentToolkit
 
   return (
     <div className="mx-auto grid w-full max-w-2xl gap-4">
+      <header className="grid gap-2 text-center">
+        <h1 className="text-2xl font-bold">{t("appName")}</h1>
+        <p className="text-sm text-muted-foreground">{t("tagline")}</p>
+        <div className="flex items-center justify-center gap-2">
+          <Languages className="size-4" aria-hidden />
+          <label htmlFor="dt-locale" className="sr-only">
+            {t("language")}
+          </label>
+          <select
+            id="dt-locale"
+            data-testid="locale-select"
+            className="rounded-md border bg-background px-2 py-1 text-sm"
+            value={locale}
+            onChange={(e) => setLocale(e.target.value as Locale)}
+          >
+            {locales.map((l) => (
+              <option key={l} value={l}>
+                {localeNames[l]}
+              </option>
+            ))}
+          </select>
+        </div>
+      </header>
+
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <FileText className="size-5" /> PDF info
+            <FileText className="size-5" /> {t("pdf.title")}
           </CardTitle>
         </CardHeader>
         <CardContent className="grid gap-3">
           <label htmlFor="dt-pdf" className="text-sm text-muted-foreground">
-            Upload a PDF — parsed by the Python service.
+            {t("pdf.upload")}
           </label>
           <input
             id="dt-pdf"
@@ -79,7 +111,7 @@ export function DocumentToolkit({ apiBaseUrl, surface = "web" }: DocumentToolkit
           {busy === "pdf" && <Loader2 className="size-4 animate-spin" />}
           {pdf && (
             <pre className="rounded-md bg-muted p-3 text-sm" data-testid="pdf-result">
-              {`pages: ${pdf.pages}\ntitle: ${pdf.title ?? "—"}\nwords: ${pdf.words}`}
+              {`${t("pdf.pages")}: ${pdf.pages}\n${t("pdf.docTitle")}: ${pdf.title ?? "—"}\n${t("pdf.words")}: ${pdf.words}`}
             </pre>
           )}
         </CardContent>
@@ -88,12 +120,12 @@ export function DocumentToolkit({ apiBaseUrl, surface = "web" }: DocumentToolkit
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <ImageIcon className="size-5" /> Image resize
+            <ImageIcon className="size-5" /> {t("image.title")}
           </CardTitle>
         </CardHeader>
         <CardContent className="grid gap-3">
           <label htmlFor="dt-image" className="text-sm text-muted-foreground">
-            Upload an image — resized to 256×256 by the Python service.
+            {t("image.upload")}
           </label>
           <input
             id="dt-image"
@@ -110,18 +142,23 @@ export function DocumentToolkit({ apiBaseUrl, surface = "web" }: DocumentToolkit
               className="rounded-md border"
               width={128}
               height={128}
+              data-testid="image-result"
             />
           )}
         </CardContent>
       </Card>
 
-      {error && <p className="text-sm text-destructive">Error: {error}</p>}
-      <p className="text-center text-xs text-muted-foreground">
-        Rendered on <strong>{surface}</strong> · powered by @repo/ui + @repo/client
+      {error && (
+        <p className="text-sm text-destructive">
+          {t("error")}: {error}
+        </p>
+      )}
+      <p className="text-center text-xs text-muted-foreground" data-testid="surface-label">
+        {t("renderedOn", { surface })}
       </p>
       <div className="flex justify-center">
         <Button variant="outline" size="sm" onClick={() => client.health().catch(() => {})}>
-          Ping API
+          {t("pingApi")}
         </Button>
       </div>
     </div>

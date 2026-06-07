@@ -7,6 +7,6 @@ describe("@repo/web", () => {
     const html = renderToStaticMarkup(<App />);
     expect(html).toContain("PDF info");
     expect(html).toContain("Image resize");
-    expect(html).toContain("Web client");
+    expect(html).toContain("Rendered on web");
   });
 });

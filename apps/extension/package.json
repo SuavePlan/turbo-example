@@ -19,6 +19,7 @@
     "@repo/client": "workspace:*",
     "@repo/core": "workspace:*",
     "@repo/ui": "workspace:*",
+    "@wxt-dev/i18n": "^0.2.3",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
   },
