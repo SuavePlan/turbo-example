@@ -1,0 +1,12 @@
+{
+  "expo": {
+    "name": "Turbo Showcase",
+    "slug": "turbo-showcase",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "platforms": ["ios", "android"],
+    "newArchEnabled": true,
+    "ios": { "bundleIdentifier": "sh.suaveplan.turbo.mobile" },
+    "android": { "package": "sh.suaveplan.turbo.mobile" }
+  }
+}
