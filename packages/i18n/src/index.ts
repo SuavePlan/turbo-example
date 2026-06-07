@@ -18,6 +18,31 @@ export function resolveLocale(input: string | undefined | null): Locale {
   return defaultLocale;
 }
 
+/**
+ * Resolve a locale from an HTTP `Accept-Language` header, honouring q-weights,
+ * so the backend apps can answer in the caller's language.
+ */
+export function resolveAcceptLanguage(header: string | undefined | null): Locale {
+  if (!header) return defaultLocale;
+  const ranked = header
+    .split(",")
+    .map((part) => {
+      const [tag, ...params] = part.trim().split(";");
+      const q = params.find((p) => p.trim().startsWith("q="));
+      const weight = q ? Number.parseFloat(q.split("=")[1] ?? "1") : 1;
+      return { tag: (tag ?? "").trim(), weight: Number.isNaN(weight) ? 1 : weight };
+    })
+    .filter((entry) => entry.tag.length > 0)
+    .sort((a, b) => b.weight - a.weight);
+
+  for (const { tag } of ranked) {
+    const lower = tag.toLowerCase();
+    if (lower.startsWith("zh")) return "zh-CN";
+    if (lower.startsWith("en")) return "en-GB";
+  }
+  return defaultLocale;
+}
+
 export type Translator = (key: MessageKey, params?: Record<string, string | number>) => string;
 
 /** Build a translator for a locale, falling back to the default locale. */

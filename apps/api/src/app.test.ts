@@ -56,4 +56,40 @@ describe("@repo/api", () => {
     });
     expect(res.status).toBe(502);
   });
+
+  test("localises the 502 error via Accept-Language", async () => {
+    const stub: typeof fetch = (async () => {
+      throw new Error("ECONNREFUSED");
+    }) as unknown as typeof fetch;
+    const app = createApp({ pythonApiUrl: "http://python", fetch: stub });
+
+    const en = await app.request("/pdf/info", {
+      method: "POST",
+      headers: { "content-type": "application/json", "accept-language": "en-GB" },
+      body: JSON.stringify({ data: "abc" }),
+    });
+    expect((await en.json()).error).toContain("unreachable");
+
+    const zh = await app.request("/pdf/info", {
+      method: "POST",
+      headers: { "content-type": "application/json", "accept-language": "zh-CN" },
+      body: JSON.stringify({ data: "abc" }),
+    });
+    expect((await zh.json()).error).toContain("无法连接");
+  });
+
+  test("forwards Accept-Language to the python service", async () => {
+    let forwarded = "";
+    const stub: typeof fetch = (async (_url: string, init: RequestInit) => {
+      forwarded = new Headers(init.headers).get("accept-language") ?? "";
+      return Response.json({ pages: 1, title: null, sizeBytes: 1, words: 0 });
+    }) as unknown as typeof fetch;
+    const app = createApp({ pythonApiUrl: "http://python", fetch: stub });
+    await app.request("/pdf/info", {
+      method: "POST",
+      headers: { "content-type": "application/json", "accept-language": "zh-CN" },
+      body: JSON.stringify({ data: "abc" }),
+    });
+    expect(forwarded).toBe("zh-CN");
+  });
 });

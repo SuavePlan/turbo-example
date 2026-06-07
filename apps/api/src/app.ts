@@ -8,6 +8,7 @@ import {
   ResizeResponse,
 } from "@repo/api-contract";
 import { APP_NAME } from "@repo/core";
+import { createTranslator, resolveAcceptLanguage } from "@repo/i18n";
 
 export interface AppOptions {
   /** Base URL of the Python FastAPI sidecar. */
@@ -35,21 +36,29 @@ export function createApp(opts: AppOptions = {}) {
   const upstream = opts.fetch ?? fetch;
   const app = new OpenAPIHono();
 
-  type Forwarded<T> = { ok: true; data: T } | { ok: false; error: string };
+  type Forwarded<T> =
+    | { ok: true; data: T }
+    | { ok: false; reason: "unreachable" }
+    | { ok: false; reason: "status"; status: number };
 
-  async function callPython<T>(path: string, body: unknown): Promise<Forwarded<T>> {
+  async function callPython<T>(
+    path: string,
+    body: unknown,
+    acceptLanguage: string | undefined,
+  ): Promise<Forwarded<T>> {
     try {
+      const headers: Record<string, string> = { "content-type": "application/json" };
+      // Forward the caller's language so the Python service localises too.
+      if (acceptLanguage) headers["accept-language"] = acceptLanguage;
       const res = await upstream(`${pythonApiUrl}${path}`, {
         method: "POST",
-        headers: { "content-type": "application/json" },
+        headers,
         body: JSON.stringify(body),
       });
-      if (!res.ok) {
-        return { ok: false, error: `python-api responded ${res.status}` };
-      }
+      if (!res.ok) return { ok: false, reason: "status", status: res.status };
       return { ok: true, data: (await res.json()) as T };
     } catch {
-      return { ok: false, error: `python-api unreachable at ${pythonApiUrl}` };
+      return { ok: false, reason: "unreachable" };
     }
   }
 
@@ -88,11 +97,20 @@ export function createApp(opts: AppOptions = {}) {
       },
     }),
     async (c) => {
+      const acceptLanguage = c.req.header("accept-language");
+      const t = createTranslator(resolveAcceptLanguage(acceptLanguage));
       const result = await callPython<z.infer<typeof PdfInfoResponse>>(
         "/pdf/info",
         c.req.valid("json"),
+        acceptLanguage,
       );
-      if (!result.ok) return c.json({ error: result.error }, 502);
+      if (!result.ok) {
+        const error =
+          result.reason === "status"
+            ? t("server.upstreamStatus", { status: result.status })
+            : t("server.upstreamUnreachable", { url: pythonApiUrl });
+        return c.json({ error }, 502);
+      }
       return c.json(result.data, 200);
     },
   );
@@ -117,11 +135,20 @@ export function createApp(opts: AppOptions = {}) {
       },
     }),
     async (c) => {
+      const acceptLanguage = c.req.header("accept-language");
+      const t = createTranslator(resolveAcceptLanguage(acceptLanguage));
       const result = await callPython<z.infer<typeof ResizeResponse>>(
         "/image/resize",
         c.req.valid("json"),
+        acceptLanguage,
       );
-      if (!result.ok) return c.json({ error: result.error }, 502);
+      if (!result.ok) {
+        const error =
+          result.reason === "status"
+            ? t("server.upstreamStatus", { status: result.status })
+            : t("server.upstreamUnreachable", { url: pythonApiUrl });
+        return c.json({ error }, 502);
+      }
       return c.json(result.data, 200);
     },
   );

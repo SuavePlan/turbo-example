@@ -122,9 +122,16 @@ Non-JS projects join the Turbo graph through a thin `package.json` whose scripts
 
 ## Internationalisation
 
-`@repo/i18n` holds the shared en-GB / zh-CN catalog used by every React surface and mobile.
-The browser extension additionally uses [`@wxt-dev/i18n`](https://wxt.dev) to localise its
-**manifest** name/description (generated `_locales/en` + `_locales/zh_CN`).
+Every app **and** extension is multilingual (en-GB / zh-CN):
+
+- **Front-ends** — `@repo/i18n` is the shared catalog used by every React surface (web, both
+  desktops, the extension popup) via the `DocumentToolkit` language switcher, and by mobile.
+- **Extension manifest** — [`@wxt-dev/i18n`](https://wxt.dev) localises the extension's
+  name/description (generated `_locales/en` + `_locales/zh_CN`).
+- **Back-ends** — `api`, `python-api` and `php-server` resolve the caller's language from the
+  `Accept-Language` header (q-weighted) and return localised errors/health. The Hono API
+  forwards `Accept-Language` to the Python sidecar, so the whole chain answers in one language.
+  Python and PHP mirror the shared catalog's `server.*` keys.
 
 ## End-to-end tests
 
