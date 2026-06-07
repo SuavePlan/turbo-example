@@ -1,0 +1,78 @@
+# Bring up the whole cross-language system with one command:
+#   docker compose up api python-api php-server web
+#
+# Cross-build the Electron Windows + Linux artifacts on this Linux host:
+#   docker compose --profile builder run --rm electron-builder
+name: turbo-polyglot-showcase
+
+services:
+  # Python FastAPI sidecar (pypdf + Pillow).
+  python-api:
+    image: python:3.11-slim
+    working_dir: /app
+    command: >-
+      sh -c "pip install -q uv && uv run --extra dev uvicorn python_api:app
+             --app-dir src --host 0.0.0.0 --port 8000"
+    volumes:
+      - ./apps/python-api:/app
+      - ./packages/py-pdf:/packages/py-pdf
+      - ./packages/py-image:/packages/py-image
+    ports:
+      - "8000:8000"
+
+  # Hono + OpenAPI gateway; proxies to python-api.
+  api:
+    image: oven/bun:1.3.11
+    working_dir: /repo/apps/api
+    command: sh -c "cd /repo && bun install && cd apps/api && bun src/index.ts"
+    environment:
+      PYTHON_API_URL: http://python-api:8000
+      PORT: "3000"
+    volumes:
+      - .:/repo
+    ports:
+      - "3000:3000"
+    depends_on:
+      - python-api
+
+  # Production web app (built, served by Bun + Hono, proxies /api -> api).
+  web:
+    image: oven/bun:1.3.11
+    working_dir: /repo/apps/web
+    command: sh -c "cd /repo && bun install && cd apps/web && bunx vite build && bun run server.ts"
+    environment:
+      API_URL: http://api:3000
+      PORT: "4173"
+    volumes:
+      - .:/repo
+    ports:
+      - "4173:4173"
+    depends_on:
+      - api
+
+  # PHP 8.4 server; /api/* proxies to the gateway.
+  php-server:
+    image: php:8.4-cli
+    working_dir: /app
+    command: sh -c "curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer && composer install --no-interaction && php -S 0.0.0.0:8080 -t public"
+    environment:
+      API_URL: http://api:3000
+    volumes:
+      - ./apps/php-server:/app
+    ports:
+      - "8080:8080"
+    depends_on:
+      - api
+
+  # Cross-compile the Electron Windows + Linux installers from Linux (Wine).
+  # Enabled only with the "builder" profile so normal `up` doesn't run it.
+  electron-builder:
+    image: electronuserland/builder:wine
+    profiles: ["builder"]
+    working_dir: /repo
+    command: >-
+      sh -c "bun install &&
+             cd apps/desktop-electron && bunx vite build &&
+             bunx electron-builder --linux --win --publish never"
+    volumes:
+      - .:/repo
