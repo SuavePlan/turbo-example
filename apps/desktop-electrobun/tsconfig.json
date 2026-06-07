@@ -1,0 +1,10 @@
+{
+  "extends": "@repo/tsconfig/react.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "types": ["bun", "react", "react-dom"]
+  },
+  "comment": "The bun main (src/bun) imports electrobun, which ships untyped .ts deps; it is type-checked by Electrobun's own bundler at `electrobun build`. Here we type-check the React view + config.",
+  "include": ["src/mainview/**/*.ts", "src/mainview/**/*.tsx", "electrobun.config.ts"],
+  "exclude": ["build", "node_modules"]
+}

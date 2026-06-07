@@ -1,0 +1,70 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Bun
+.bun/
+
+# Build outputs
+dist/
+build/
+.output/
+release/
+out/
+*.tsbuildinfo
+
+# Turbo
+.turbo/
+
+# Playwright
+test-results/
+playwright-report/
+blob-report/
+.playwright/
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+.ruff_cache/
+*.egg-info/
+.uv/
+
+# PHP
+vendor/
+.phpunit.result.cache
+.phpunit.cache/
+
+# WXT (browser extension)
+.wxt/
+web-ext.config.ts.timestamp*
+
+# Expo / React Native
+.expo/
+.expo-shared/
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+
+# Electron
+dist_electron/
+
+# Web / Vite
+.vite/
+
+# Env / secrets
+.env
+.env.local
+.env.*.local
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*

@@ -1,0 +1,90 @@
+name: CI
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  # Lint, typecheck, test and build the whole polyglot graph on Linux.
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: "1.3.11"
+      - uses: astral-sh/setup-uv@v5
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.4"
+          tools: composer
+
+      - name: Install JS dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Lint
+        run: bunx turbo run lint
+
+      - name: Typecheck
+        run: bunx turbo run check
+
+      - name: Test (TS + Python + PHP)
+        run: bunx turbo run test
+
+      - name: Build
+        run: bunx turbo run build
+
+      - name: Install Playwright browser
+        run: bunx playwright install --with-deps chromium
+
+      - name: End-to-end (web + extension)
+        run: bunx turbo run e2e
+
+  # Produce the platform-specific desktop/mobile artifacts on native runners.
+  # guarded-build skips whatever a given runner can't build, so each job only
+  # emits what it legitimately can (macOS/iOS only on macos-latest, etc.).
+  package:
+    needs: verify
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: "1.3.11"
+      - run: bun install --frozen-lockfile
+
+      - name: Report build capabilities for this runner
+        run: bunx turbo run platform:info
+
+      - name: Package Electron (Linux/Windows/macOS as available)
+        run: cd apps/desktop-electron && bunx vite build && bun run package
+
+      - name: Package Electrobun (host platform)
+        run: cd apps/desktop-electrobun && bun run package
+
+      - name: Build extension (all browsers; Safari .app on macOS)
+        run: cd apps/extension && bun run build && bun run package:safari
+
+      - name: Export mobile bundle + native build where supported
+        run: |
+          cd apps/mobile
+          bun run build:android
+          bun run build:ios
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: desktop-${{ matrix.os }}
+          path: |
+            apps/desktop-electron/release/**
+            apps/desktop-electrobun/build/**
+          if-no-files-found: ignore

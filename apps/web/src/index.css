@@ -1,0 +1,7 @@
+@import "tailwindcss";
+
+/* Scan the shared UI package so its Tailwind classes are generated. */
+@source "../../../packages/ui/src";
+
+/* Shared design tokens (@theme) from the UI package. */
+@import "@repo/ui/styles.css";

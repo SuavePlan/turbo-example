@@ -1,0 +1,9 @@
+{
+  "extends": "@repo/tsconfig/react.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "types": ["bun", "react", "react-dom"]
+  },
+  "include": ["src/**/*.ts", "src/**/*.tsx"],
+  "exclude": ["dist", "node_modules"]
+}

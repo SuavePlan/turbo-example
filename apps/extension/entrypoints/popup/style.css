@@ -1,0 +1,8 @@
+@import "tailwindcss";
+@source "../../../../packages/ui/src";
+@import "@repo/ui/styles.css";
+
+/* Give the popup a sensible fixed width. */
+body {
+  width: 420px;
+}

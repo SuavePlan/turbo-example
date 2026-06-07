@@ -1,0 +1,9 @@
+{
+  "extends": "@repo/tsconfig/react.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "types": ["bun", "react", "react-dom", "vite/client"]
+  },
+  "include": ["src/**/*.ts", "src/**/*.tsx", "vite.config.ts"],
+  "exclude": ["dist", "release", "node_modules"]
+}

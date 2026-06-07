@@ -1,0 +1,31 @@
+{
+  "name": "@repo/desktop-electrobun",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "electrobun dev",
+    "build": "tsc -p tsconfig.json --noEmit",
+    "check": "tsc -p tsconfig.json --noEmit",
+    "test": "bun test",
+    "lint": "biome check src",
+    "format": "biome format --write src",
+    "package": "guarded-build --name desktop-electrobun:host --requires any -- electrobun build"
+  },
+  "dependencies": {
+    "@repo/client": "workspace:*",
+    "@repo/core": "workspace:*",
+    "@repo/ui": "workspace:*",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
+    "@repo/platform": "workspace:*",
+    "@repo/tsconfig": "workspace:*",
+    "@types/bun": "latest",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "electrobun": "^1.0.0",
+    "typescript": "^5.9.2"
+  }
+}

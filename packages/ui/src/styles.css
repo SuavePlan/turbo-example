@@ -1,0 +1,31 @@
+/*
+ * Shared design tokens for every frontend (web, desktop, extension).
+ * Tailwind v4 derives `bg-primary`, `text-muted-foreground`, etc. from the
+ * `--color-*` entries in @theme. Consuming apps import Tailwind themselves and
+ * then `@import "@repo/ui/styles.css"` so the import happens exactly once.
+ */
+@theme {
+  --color-background: hsl(0 0% 100%);
+  --color-foreground: hsl(240 10% 4%);
+  --color-card: hsl(0 0% 100%);
+  --color-card-foreground: hsl(240 10% 4%);
+  --color-primary: hsl(243 75% 59%);
+  --color-primary-foreground: hsl(0 0% 100%);
+  --color-muted: hsl(240 5% 96%);
+  --color-muted-foreground: hsl(240 4% 46%);
+  --color-accent: hsl(240 5% 96%);
+  --color-accent-foreground: hsl(240 6% 10%);
+  --color-destructive: hsl(0 72% 51%);
+  --color-border: hsl(240 6% 90%);
+  --color-input: hsl(240 6% 90%);
+  --color-ring: hsl(243 75% 59%);
+}
+
+:root {
+  color-scheme: light;
+}
+
+body {
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+}
