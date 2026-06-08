@@ -54,3 +54,19 @@ def test_image_resize_round_trip():
 def test_bad_base64_is_rejected():
     res = client.post("/pdf/info", json={"data": "!!!not-base64!!!"})
     assert res.status_code == 400
+
+
+def test_errors_are_localised_by_accept_language():
+    en = client.post(
+        "/pdf/info",
+        json={"data": "!!!"},
+        headers={"accept-language": "en-GB"},
+    )
+    assert "Invalid base64" in en.json()["detail"]
+
+    zh = client.post(
+        "/pdf/info",
+        json={"data": "!!!"},
+        headers={"accept-language": "zh-CN,zh;q=0.9"},
+    )
+    assert "无效" in zh.json()["detail"]

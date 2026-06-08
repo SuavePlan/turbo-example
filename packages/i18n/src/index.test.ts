@@ -1,5 +1,11 @@
 import { describe, expect, test } from "bun:test";
-import { createTranslator, locales, messages, resolveLocale } from "./index.ts";
+import {
+  createTranslator,
+  locales,
+  messages,
+  resolveAcceptLanguage,
+  resolveLocale,
+} from "./index.ts";
 
 describe("@repo/i18n", () => {
   test("translates a key per locale", () => {
@@ -15,6 +21,13 @@ describe("@repo/i18n", () => {
     expect(resolveLocale("zh-Hans-CN")).toBe("zh-CN");
     expect(resolveLocale("en-US")).toBe("en-GB");
     expect(resolveLocale(undefined)).toBe("en-GB");
+  });
+
+  test("resolveAcceptLanguage honours q-weights", () => {
+    expect(resolveAcceptLanguage("zh-CN,zh;q=0.9,en;q=0.8")).toBe("zh-CN");
+    expect(resolveAcceptLanguage("en-US,en;q=0.9,zh;q=0.2")).toBe("en-GB");
+    expect(resolveAcceptLanguage("fr-FR,zh;q=0.7,en;q=0.6")).toBe("zh-CN");
+    expect(resolveAcceptLanguage(null)).toBe("en-GB");
   });
 
   test("every locale defines every key", () => {
